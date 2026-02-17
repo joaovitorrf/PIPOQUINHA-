@@ -40,37 +40,3 @@
 }
 ```
 
----
-
-## 📄 10. **.gitignore**
-```
-node_modules/
-.vercel
-.env
-.DS_Store
-Thumbs.db
-*.log
-```
-
----
-
-# 🎯 COMO ORGANIZAR NO PC:
-
-Crie essa estrutura de pastas no seu PC:
-```
-📁 pipocaflix/
-  📁 public/
-    📄 index.html
-    📄 filme.html
-    📄 serie.html
-  📁 assets/
-    📁 css/
-      📄 style.css
-    📁 js/
-      📄 api.js
-      📄 search.js
-      📄 security.js
-    📁 img/ (vazia por enquanto)
-  📄 README.md
-  📄 vercel.json
-  📄 .gitignore
