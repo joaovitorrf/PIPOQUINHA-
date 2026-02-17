@@ -1,0 +1,173 @@
+<!-- /public/serie.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PipocaFlix - Assistir Série Online</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🍿 PipocaFlix</div>
+        <!-- Monetização: Native Banner no Header -->
+        <script async data-cfasync="false" src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
+        <div id="container-cccc7245f0c46289c4b3a2911da39bca"></div>
+    </header>
+    
+    <main class="main-serie">
+        <h1 id="serieTitulo"></h1>
+        <img id="seriePoster" class="movie-poster" alt="Poster da Série" loading="lazy">
+        
+        <div class="info" id="serieInfo">
+            <!-- Populadas via JS -->
+        </div>
+        
+        <p class="sinopse" id="serieSinopse"></p>
+        
+        <!-- Trailer -->
+        <div class="trailer-container" id="trailerContainer">
+            <!-- Iframe populado via JS -->
+        </div>
+        
+        <!-- Elenco -->
+        <div class="actors-container" id="actorsContainer">
+            <!-- Populadas via JS -->
+        </div>
+        
+        <!-- Temporadas -->
+        <h3>📦 Temporadas</h3>
+        <div id="temporadasBtns"></div>
+        
+        <!-- Episódios -->
+        <h3>🎬 Episódios</h3>
+        <div id="episodios"></div>
+        
+        <!-- Monetização: Social Bar antes do player -->
+        <script src="https://pl28456424.effectivegatecpm.com/af/b2/ae/afb2aeef36a1a40f4d3634823ebf0f59.js"></script>
+        
+        <div class="player-container" id="playerBox" style="display:none;">
+            <video id="video" poster="" preload="metadata">
+                <source id="videoSource" type="video/mp4">
+            </video>
+            <div class="overlay" id="overlay">
+                <div>Clique para reproduzir</div>
+            </div>
+            <button id="centerPlay">▶</button>
+            <div class="controls hidden" id="controls">
+                <div class="buttons">
+                    <button class="control-btn" id="back10">⏪</button>
+                    <button class="control-btn" id="playPause">▶</button>
+                    <button class="control-btn" id="forward10">⏩</button>
+                    <div class="title-display" id="playerTitle"></div>
+                    <button class="control-btn" id="fullscreen">⛶</button>
+                </div>
+                <div class="progress-container">
+                    <span class="time" id="currentTime">0:00</span>
+                    <div class="progress" id="progress"><div class="progress-filled" id="progressFilled"></div></div>
+                    <span class="time" id="totalTime">0:00</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <p>&copy; 2026 PipocaFlix. Todos os direitos reservados.</p>
+        <!-- Monetização: Native Banner no Footer -->
+        <script async data-cfasync="false" src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
+        <div id="container-cccc7245f0c46289c4b3a2911da39bca"></div>
+    </footer>
+    
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/player.js"></script>
+    <script src="/assets/js/security.js"></script>
+    <script>
+        // Carregar dados da série baseado no ID da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        let serieContent = null;
+        let episodiosData = [];
+        
+        if (id) {
+            Promise.all([
+                fetchContentById(id),
+                fetchEpisodiosByNome(id) // Assumindo que ID é o row ID, mas comparar Nome
+            ]).then(([content, episodios]) => {
+                if (content && content.Tipo === 'Serie') {
+                    serieContent = content;
+                    episodiosData = episodios;
+                    populateSeriePage(content, episodios);
+                } else {
+                    window.location.href = '/public/index.html';
+                }
+            });
+        }
+        
+        function populateSeriePage(content, episodios) {
+            document.title = `${content.Nome} - PipocaFlix`;
+            document.getElementById('serieTitulo').textContent = content.Nome;
+            document.getElementById('seriePoster').src = content.Capa;
+            document.getElementById('serieSinopse').textContent = `📝 Sinopse: ${content.Sinopse}`;
+            
+            const infoHtml = `
+                <div><strong>🎬 Ano:</strong> ${content.Ano}</div>
+                <div><strong>⏱️ Duração:</strong> ${content.Duracao}</div>
+                <div><strong>🎭 Categoria:</strong> ${content.Categoria}</div>
+                <div><strong>🔊 Áudio:</strong> ${content.Audio}</div>
+            `;
+            document.getElementById('serieInfo').innerHTML = infoHtml;
+            
+            // Trailer
+            if (content.Trailer) {
+                document.getElementById('trailerContainer').innerHTML = `
+                    <iframe src="${content.Trailer.replace('watch?v=', 'embed/')}" title="Trailer ${content.Nome}" frameborder="0" allowfullscreen></iframe>
+                `;
+            }
+            
+            // Elenco
+            const actorsHtml = content.Fotos_Elenco.split(',').map((foto, index) => {
+                const nome = content.Nome_Elenco.split(',')[index] || 'Ator';
+                return `
+                    <div class="actor">
+                        <img src="${foto.trim()}" alt="${nome}" loading="lazy">
+                        <span>${nome}</span>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('actorsContainer').innerHTML = actorsHtml;
+            
+            // Agrupar episódios por temporada
+            const temporadas = [...new Set(episodios.map(ep => ep.Temporada))].sort((a,b) => a - b);
+            const tempBtnsHtml = temporadas.map(temp => `
+                <button class="temp-btn" onclick="mostrarTemporada(${temp})">Temporada ${temp}</button>
+            `).join('');
+            document.getElementById('temporadasBtns').innerHTML = tempBtnsHtml;
+            
+            // Mostrar primeira temporada por default
+            if (temporadas.length > 0) mostrarTemporada(temporadas[0]);
+        }
+        
+        function mostrarTemporada(temp) {
+            const eps = episodiosData.filter(ep => ep.Temporada === temp).sort((a,b) => a.Episodio - b.Episodio);
+            const epsHtml = eps.map(ep => `
+                <button class="ep-btn" onclick="tocar(${temp}, ${ep.Episodio}, '${ep.Nome}')">Ep ${ep.Episodio} - ${ep.Nome}</button>
+            `).join('');
+            document.getElementById('episodios').innerHTML = epsHtml;
+        }
+        
+        function tocar(temp, ep, nomeEp) {
+            window.open("https://www.effectivegatecpm.com/eacwhk55f?key=87f8fc919fb5d70a825293b5490713dd", "_blank");
+            const playerBox = document.getElementById('playerBox');
+            playerBox.style.display = "block";
+            const video = document.getElementById('video');
+            const epData = episodiosData.find(e => e.Temporada === temp && e.Episodio === ep);
+            video.src = epData.Link;
+            document.getElementById('playerTitle').textContent = `${serieContent.Nome} - T${temp} EP ${ep}`;
+            video.load();
+            document.getElementById('overlay').classList.remove("hidden");
+            document.getElementById('centerPlay').style.opacity = 1;
+            document.getElementById('controls').classList.add("hidden");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{
+  "version": 2,
+  "name": "pipocaflix",
+  "public": true,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/filme",
+      "destination": "/filme.html"
+    },
+    {
+      "source": "/serie",
+      "destination": "/serie.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## 📄 10. **.gitignore**
+```
+node_modules/
+.vercel
+.env
+.DS_Store
+Thumbs.db
+*.log
+```
+
+---
+
+# 🎯 COMO ORGANIZAR NO PC:
+
+Crie essa estrutura de pastas no seu PC:
+```
+📁 pipocaflix/
+  📁 public/
+    📄 index.html
+    📄 filme.html
+    📄 serie.html
+  📁 assets/
+    📁 css/
+      📄 style.css
+    📁 js/
+      📄 api.js
+      📄 search.js
+      📄 security.js
+    📁 img/ (vazia por enquanto)
+  📄 README.md
+  📄 vercel.json
+  📄 .gitignore

@@ -1,0 +1,155 @@
+<!-- /public/filme.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PipocaFlix - Assistir Filme Online</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🍿 PipocaFlix</div>
+        <!-- Monetização: Native Banner no Header -->
+        <script async data-cfasync="false" src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
+        <div id="container-cccc7245f0c46289c4b3a2911da39bca"></div>
+    </header>
+    
+    <main class="main-filme">
+        <h1 id="filmeTitulo"></h1>
+        <img id="filmePoster" class="movie-poster" alt="Poster do Filme" loading="lazy">
+        
+        <div class="info" id="filmeInfo">
+            <!-- Populadas via JS -->
+        </div>
+        
+        <p class="sinopse" id="filmeSinopse"></p>
+        
+        <!-- Monetização: Social Bar antes do player -->
+        <script src="https://pl28456424.effectivegatecpm.com/af/b2/ae/afb2aeef36a1a40f4d3634823ebf0f59.js"></script>
+        
+        <button id="btnDesbloquear">🔓 Clique 3 vezes para desbloquear o player</button>
+        
+        <div class="player-container" id="playerBox" style="display:none;">
+            <video id="video" poster="" preload="metadata">
+                <source id="videoSource" type="video/mp4">
+            </video>
+            <div class="overlay" id="overlay">
+                <img src="/assets/img/logo.png" class="logo" alt="Logo PipocaFlix"> <!-- Assumir imagem em /img -->
+                <div class="text">Clique para reproduzir</div>
+            </div>
+            <button id="centerPlay">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="controls hidden" id="controls">
+                <div class="buttons">
+                    <button class="control-btn" id="back10">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M11 18V6l-8 6 8 6zm2-12h8v2h-8zm0 6h6v2h-6z"/>
+                        </svg>
+                    </button>
+                    <button class="control-btn" id="playPause">
+                        <svg class="icon" viewBox="0 0 24 24" id="playIcon">
+                            <path id="playPausePath" d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                    <button class="control-btn" id="forward10">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M13 6v12l8-6-8-6zm-2 12H3v-2h8zm0-6H5v-2h6z"/>
+                        </svg>
+                    </button>
+                    <div class="title-display" id="playerTitle"></div>
+                    <button class="control-btn" id="fullscreen">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M4 4h6v2H6v4H4V4zm14 0v6h-2V6h-4V4h6zm0 14h-6v-2h4v-4h2v6zm-14 0v-6h2v4h4v2H4z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="progress-container">
+                    <span class="time" id="currentTime">0:00</span>
+                    <div class="progress" id="progress">
+                        <div class="progress-filled" id="progressFilled"></div>
+                    </div>
+                    <span class="time" id="totalTime">0:00</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trailer -->
+        <div class="trailer-container" id="trailerContainer">
+            <!-- Iframe populado via JS -->
+        </div>
+        
+        <!-- Elenco -->
+        <div class="actors-container" id="actorsContainer">
+            <!-- Populadas via JS -->
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <p>&copy; 2026 PipocaFlix. Todos os direitos reservados.</p>
+        <!-- Monetização: Native Banner no Footer -->
+        <script async data-cfasync="false" src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
+        <div id="container-cccc7245f0c46289c4b3a2911da39bca"></div>
+    </footer>
+    
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/player.js"></script>
+    <script src="/assets/js/security.js"></script>
+    <!-- Inicialização -->
+    <script>
+        // Carregar dados do filme baseado no ID da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        if (id) {
+            fetchContentById(id).then(content => {
+                if (content && content.Tipo === 'Filme') {
+                    populateFilmePage(content);
+                } else {
+                    window.location.href = '/public/index.html'; // Redireciona se não for filme
+                }
+            });
+        }
+        
+        // Função para popular a página
+        function populateFilmePage(content) {
+            document.title = `${content.Nome} - PipocaFlix`;
+            document.getElementById('filmeTitulo').textContent = content.Nome;
+            document.getElementById('filmePoster').src = content.Capa;
+            document.getElementById('filmePoster').dataset.poster = content.Capa; // Para fallback
+            document.getElementById('filmeSinopse').textContent = `📝 Sinopse: ${content.Sinopse}`;
+            
+            const infoHtml = `
+                <p><strong>📅 Ano:</strong> ${content.Ano}</p>
+                <p><strong>⏱️ Duração:</strong> ${content.Duracao}</p>
+                <p><strong>🎭 Categoria:</strong> ${content.Categoria}</p>
+                <p><strong>🔊 Áudio:</strong> ${content.Audio}</p>
+            `;
+            document.getElementById('filmeInfo').innerHTML = infoHtml;
+            
+            // Trailer
+            if (content.Trailer) {
+                document.getElementById('trailerContainer').innerHTML = `
+                    <iframe width="100%" height="100%" src="${content.Trailer.replace('watch?v=', 'embed/')}" 
+                    title="Trailer ${content.Nome}" frameborder="0" allowfullscreen></iframe>
+                `;
+            }
+            
+            // Elenco
+            const actorsHtml = content.Fotos_Elenco.split(',').map((foto, index) => {
+                const nome = content.Nome_Elenco.split(',')[index] || 'Ator';
+                return `<div class="actor"><img src="${foto.trim()}" alt="${nome}" loading="lazy"></div>`;
+            }).join('');
+            document.getElementById('actorsContainer').innerHTML = actorsHtml;
+            
+            // Configurar player
+            document.getElementById('video').poster = content.Capa; // Fallback poster
+            document.getElementById('videoSource').src = content.Link; // Link principal
+            document.getElementById('playerTitle').textContent = `${content.Nome} (${content.Ano})`;
+            document.getElementById('video').load();
+            
+            // Anti-CORS fallback: Se falhar, usar proxy se necessário, mas assumindo direto
+        }
+    </script>
+</body>
+</html>
